@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raghavendra Premium Groceries</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2D6A4F;
+    --green-light: #52B788;
+    --green-pale: #D8F3DC;
+    --gold: #B7891A;
+    --gold-light: #F4D03F;
+    --cream: #FDFCF7;
+    --dark: #1A2E1E;
+    --muted: #6B7C6B;
+    --border: #D9E8D9;
+    --white: #FFFFFF;
+    --danger: #C0392B;
+    --radius: 14px;
+    --shadow: 0 4px 20px rgba(45,106,79,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
+  h1, h2, h3, .logo-text { font-family: 'Playfair Display', serif; }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--dark);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .logo-text { color: var(--gold-light); font-size: 1.2rem; letter-spacing: 0.03em; }
+  .logo-sub { color: #9ab89a; font-size: 0.7rem; letter-spacing: 0.1em; font-family: 'DM Sans'; text-transform: uppercase; }
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans'; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+  .btn-ghost { background: transparent; color: #9ab89a; border: 1px solid #3d5a3d; }
+  .btn-ghost:hover { background: #2a3d2a; color: #fff; }
+  .btn-primary { background: var(--green-light); color: #fff; }
+  .btn-primary:hover { background: var(--green); }
+  .btn-gold { background: var(--gold); color: #fff; }
+  .btn-gold:hover { background: #9a7015; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #a93226; }
+  .cart-btn { position: relative; }
+  .cart-count { position: absolute; top: -6px; right: -6px; background: var(--gold); color: #fff; font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1A2E1E 0%, #2D6A4F 100%);
+  }
+  .login-card {
+    background: var(--white); border-radius: 24px; padding: 3rem 2.5rem;
+    width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo { text-align: center; margin-bottom: 2rem; }
+  .login-logo h1 { color: var(--dark); font-size: 1.8rem; }
+  .login-logo p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .leaf-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--dark); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: 'DM Sans'; font-size: 0.95rem;
+    color: var(--dark); background: var(--cream); transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--green-light); background: #fff; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .new-user-link { text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+  .new-user-link span { color: var(--green); cursor: pointer; font-weight: 500; }
+  .new-user-link span:hover { text-decoration: underline; }
+  .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: 6px; display: none; }
+
+  /* ── STORE ── */
+  #storeScreen { min-height: 100vh; }
+  .hero {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--green) 100%);
+    padding: 3rem 2rem; text-align: center; color: #fff;
+  }
+  .hero h2 { font-size: 2rem; color: var(--gold-light); margin-bottom: 0.5rem; }
+  .hero p { color: #9ab89a; font-size: 0.95rem; }
+  .store-body { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+  .welcome-bar {
+    background: var(--green-pale); border-radius: var(--radius); padding: 1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .welcome-bar span { font-size: 0.9rem; color: var(--green); }
+  .welcome-bar strong { color: var(--dark); }
+  .category-tabs {
+    display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 22px; border-radius: 50px; border: 1.5px solid var(--border);
+    background: var(--white); cursor: pointer; font-family: 'DM Sans'; font-size: 0.88rem;
+    font-weight: 500; color: var(--muted); transition: all 0.2s;
+  }
+  .tab-btn:hover { border-color: var(--green-light); color: var(--green); }
+  .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .category-title {
+    font-size: 1.4rem; color: var(--dark); margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem; border-bottom: 2px solid var(--green-pale);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .products-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.2rem; margin-bottom: 3rem;
+  }
+  .product-card {
+    background: var(--white); border-radius: var(--radius); padding: 1.2rem;
+    border: 1.5px solid var(--border); transition: all 0.25s; position: relative;
+    box-shadow: var(--shadow);
+  }
+  .product-card:hover { border-color: var(--green-light); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(45,106,79,0.15); }
+  .product-emoji { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; }
+  .product-name { font-size: 0.95rem; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .product-unit { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.6rem; }
+  .product-price { font-size: 1.15rem; font-weight: 700; color: var(--green); font-family: 'Playfair Display'; }
+  .qty-control { display: flex; align-items: center; gap: 8px; margin-top: 0.8rem; }
+  .qty-btn { width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--cream); cursor: pointer; font-size: 1.1rem; font-weight: 500; color: var(--dark); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .qty-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
+  .qty-display { min-width: 24px; text-align: center; font-weight: 600; font-size: 0.95rem; }
+  .add-cart-btn { width: 100%; margin-top: 0.8rem; padding: 9px; border-radius: 9px; border: none; background: var(--green); color: #fff; font-family: 'DM Sans'; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .add-cart-btn:hover { background: var(--dark); }
+  .add-cart-btn.added { background: var(--gold); }
+
+  /* ── CART PANEL ── */
+  .cart-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+  .cart-overlay.open { display: block; }
+  .cart-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 400px; max-width: 95vw;
+    background: var(--white); z-index: 201; overflow-y: auto; transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.2);
+  }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 1; }
+  .cart-header h3 { font-family: 'Playfair Display'; font-size: 1.3rem; }
+  .close-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .close-btn:hover { background: var(--cream); }
+  .cart-items { padding: 1rem 1.5rem; flex: 1; }
+  .cart-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .cart-item-emoji { font-size: 1.8rem; }
+  .cart-item-info { flex: 1; }
+  .cart-item-name { font-weight: 600; font-size: 0.9rem; }
+  .cart-item-price { color: var(--green); font-size: 0.85rem; font-weight: 500; }
+  .cart-item-remove { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 4px; }
+  .cart-item-remove:hover { color: var(--danger); }
+  .cart-footer { padding: 1.5rem; border-top: 1px solid var(--border); position: sticky; bottom: 0; background: var(--white); }
+  .cart-total { display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+  .cart-empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .cart-empty .big-emoji { font-size: 3rem; margin-bottom: 1rem; }
+  .cod-notice { background: var(--green-pale); border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: var(--green); margin-bottom: 1rem; text-align: center; }
+
+  /* ── ORDERS ── */
+  #ordersScreen { min-height: 100vh; }
+  .page-header { background: var(--dark); padding: 1.5rem 2rem; color: #fff; display: flex; align-items: center; gap: 16px; }
+  .page-header h2 { font-family: 'Playfair Display'; color: var(--gold-light); }
+  .page-content { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  .order-card { background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 1.5rem; margin-bottom: 1.2rem; box-shadow: var(--shadow); }
+  .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
+  .order-id { font-size: 0.8rem; color: var(--muted); font-family: monospace; }
+  .order-meta { font-size: 0.88rem; color: var(--dark); }
+  .order-meta strong { color: var(--green); }
+  .order-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; background: var(--green-pale); color: var(--green); }
+  .order-items-list { font-size: 0.88rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 0.8rem; }
+  .order-item-row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .order-total-row { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.95rem; color: var(--dark); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; }
+  .order-customer-info { font-size: 0.82rem; color: var(--muted); margin-top: 0.8rem; border-top: 1px solid var(--border); padding-top: 0.8rem; }
+
+  /* ── ADMIN ── */
+  #adminScreen { min-height: 100vh; }
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media(max-width: 700px) { .admin-grid { grid-template-columns: 1fr; } }
+  .admin-card { background: var(--white); border-radius: var(--radius); padding: 1.5rem; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+  .admin-card h3 { font-family: 'Playfair Display'; font-size: 1.1rem; margin-bottom: 1.2rem; color: var(--dark); padding-bottom: 0.8rem; border-bottom: 2px solid var(--green-pale); }
+  .product-list-admin { list-style: none; }
+  .product-list-admin li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .product-list-admin li:last-child { border-bottom: none; }
+  .pla-emoji { font-size: 1.4rem; }
+  .pla-name { flex: 1; font-weight: 500; }
+  .pla-price { color: var(--green); font-weight: 600; min-width: 70px; text-align: right; }
+  .pla-unit { color: var(--muted); font-size: 0.78rem; }
+  .pla-actions { display: flex; gap: 6px; }
+  .icon-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: none; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .icon-btn:hover { background: var(--cream); }
+  .icon-btn.del:hover { background: #fde8e8; color: var(--danger); border-color: #f5c6c6; }
+  .admin-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem; }
+  .stat-box { background: var(--white); border-radius: 12px; padding: 1rem; border: 1.5px solid var(--border); text-align: center; }
+  .stat-box .num { font-family: 'Playfair Display'; font-size: 1.8rem; color: var(--green); }
+  .stat-box .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .notification-bell { background: var(--gold-light); border-radius: 10px; padding: 12px 16px; margin-bottom: 1.2rem; font-size: 0.88rem; display: none; }
+  .notification-bell.show { display: block; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 20px; padding: 2rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal h3 { font-family: 'Playfair Display'; margin-bottom: 1.2rem; font-size: 1.2rem; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+  .modal-actions button { flex: 1; }
+  .section-selector { margin-bottom: 1rem; }
+  .section-selector select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans'; font-size: 0.92rem; background: var(--cream); }
+  .orders-list-admin .order-card { margin-bottom: 0.8rem; }
+  .admin-orders-section { grid-column: 1 / -1; }
+  .tab-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tab-pill { padding: 6px 16px; border-radius: 50px; border: 1.5px solid var(--border); background: var(--cream); cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--muted); transition: all 0.2s; }
+  .tab-pill.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+  .password-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--cream); }
+  .pw-card { background: var(--white); border-radius: 20px; padding: 2.5rem; max-width: 360px; width: 100%; box-shadow: var(--shadow); text-align: center; }
+  .pw-card h2 { font-family: 'Playfair Display'; margin-bottom: 1.5rem; color: var(--dark); }
+  .no-orders { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.95rem; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 0.72rem; font-weight: 600; }
+  .tag-veg { background: var(--green-pale); color: var(--green); }
+  .tag-drink { background: #dbeafe; color: #1d4ed8; }
+  .tag-flour { background: #fef3c7; color: #92400e; }
+  .tag-stat { background: #ede9fe; color: #5b21b6; }
+  .spinner { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.9rem; }
+
+  @media(max-width:600px) {
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    nav { padding: 0 1rem; }
+    .store-body { padding: 1rem; }
+    .admin-stats { grid-template-columns: 1fr 1fr; }
+    .login-card { margin: 1rem; padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="leaf-icon">🌿</div>
+      <h1>Raghavendra</h1>
+      <p>Premium Groceries</p>
+    </div>
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="loginPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
+        <div class="error-msg" id="loginError">Phone number not registered. Please sign up.</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:13px;" onclick="handleLogin()">Login →</button>
+      <hr class="form-divider">
+      <div class="new-user-link">New customer? <span onclick="showRegister()">Create account</span></div>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="regPhone" placeholder="10-digit mobile number" maxlength="10">
+        <div class="error-msg" id="regError">Phone already registered or invalid details.</div>
+      </div>
+      <div class="form-group">
+        <label>Door Number / House No.</label>
+        <input type="text" id="regDoor" placeholder="e.g. 4-25/B">
+      </div>
+      <div class="form-group">
+        <label>Full Address</label>
+        <textarea id="regAddress" placeholder="Street, Area, City, PIN..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:13px;" onclick="handleRegister()">Create Account →</button>
+      <hr class="form-divider">
+      <div class="new-user-link">Already have an account? <span onclick="showLogin()">Login</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ NAV (hidden until login) ═══════════════ -->
+<nav id="mainNav" style="display:none;">
+  <div>
+    <div class="logo-text">🌿 Raghavendra</div>
+    <div class="logo-sub">Premium Groceries</div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" id="ordersNavBtn" onclick="showOrders()" style="display:none;">My Orders</button>
+    <button class="btn btn-ghost" id="adminNavBtn" onclick="showAdmin()" style="display:none;">⚙ Admin</button>
+    <button class="btn btn-ghost" id="storeNavBtn" onclick="showStore()" style="display:none;">🛒 Store</button>
+    <button class="btn btn-ghost cart-btn" id="cartNavBtn" onclick="openCart()" style="display:none;">
+      🛒 Bag <span class="cart-count" id="cartCount" style="display:none;">0</span>
+    </button>
+    <button class="btn btn-ghost" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ STORE SCREEN ═══════════════ -->
+<div id="storeScreen" class="screen">
+  <div class="hero">
+    <h2>Fresh & Delivered 🌿</h2>
+    <p>Quality groceries delivered to your doorstep</p>
+  </div>
+  <div class="store-body">
+    <div class="welcome-bar">
+      <span>👋 Welcome, <strong id="welcomeName">Customer</strong></span>
+      <span style="font-size:0.8rem; color: var(--muted);" id="welcomeAddress"></span>
+    </div>
+    <div class="category-tabs">
+      <button class="tab-btn active" onclick="filterCategory('all', this)">🌟 All Products</button>
+      <button class="tab-btn" onclick="filterCategory('vegetables', this)">🥬 Vegetables</button>
+      <button class="tab-btn" onclick="filterCategory('drinks', this)">🧃 Drinks</button>
+      <button class="tab-btn" onclick="filterCategory('flours', this)">🌾 Flours</button>
+      <button class="tab-btn" onclick="filterCategory('stationary', this)">✏️ Stationary</button>
+    </div>
+    <div id="productsContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ORDERS SCREEN ═══════════════ -->
+<div id="ordersScreen" class="screen">
+  <div class="page-header">
+    <button class="btn btn-ghost" onclick="showStore()">← Back</button>
+    <h2>My Orders</h2>
+  </div>
+  <div class="page-content">
+    <div id="customerOrdersList"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ADMIN SCREEN ═══════════════ -->
+<div id="adminScreen" class="screen">
+  <div class="page-header">
+    <button class="btn btn-ghost" onclick="showStore()">← Store</button>
+    <h2>Admin Panel</h2>
+    <span style="font-size:0.8rem; color:#9ab89a; margin-left:auto;">Raghavendra Premium Groceries</span>
+  </div>
+  <div class="page-content" id="adminContent">
+    <div class="admin-stats" id="adminStats"></div>
+    <div class="notification-bell" id="notifBell"></div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>➕ Add / Edit Product</h3>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="adminCategory">
+            <option value="vegetables">🥬 Vegetables</option>
+            <option value="drinks">🧃 Drinks</option>
+            <option value="flours">🌾 Flours</option>
+            <option value="stationary">✏️ Stationary</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Product Name</label><input type="text" id="adminProductName" placeholder="e.g. Tomato"></div>
+        <div class="form-group"><label>Emoji Icon</label><input type="text" id="adminProductEmoji" placeholder="🍅" maxlength="4"></div>
+        <div class="form-group"><label>Price (₹)</label><input type="number" id="adminProductPrice" placeholder="0.00" min="0" step="0.5"></div>
+        <div class="form-group"><label>Unit / Quantity Label</label><input type="text" id="adminProductUnit" placeholder="e.g. per kg, per 500g, per bottle"></div>
+        <input type="hidden" id="adminEditId">
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" style="flex:1;" onclick="saveProduct()">Save Product</button>
+          <button class="btn btn-ghost" onclick="clearAdminForm()">Clear</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <h3>📋 Products by Category</h3>
+        <div class="tab-pills" id="adminCatFilter">
+          <span class="tab-pill active" onclick="filterAdminProducts('all', this)">All</span>
+          <span class="tab-pill" onclick="filterAdminProducts('vegetables', this)">Vegetables</span>
+          <span class="tab-pill" onclick="filterAdminProducts('drinks', this)">Drinks</span>
+          <span class="tab-pill" onclick="filterAdminProducts('flours', this)">Flours</span>
+          <span class="tab-pill" onclick="filterAdminProducts('stationary', this)">Stationary</span>
+        </div>
+        <ul class="product-list-admin" id="adminProductList"></ul>
+      </div>
+      <div class="admin-card admin-orders-section">
+        <h3>📦 All Customer Orders</h3>
+        <div id="adminOrdersList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CART PANEL ═══════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h3>🛒 Order Bag</h3>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter"></div>
+</div>
+
+<!-- ═══════════════ EDIT PRODUCT MODAL ═══════════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Product</h3>
+    <div class="form-group"><label>Name</label><input type="text" id="editName"></div>
+    <div class="form-group"><label>Emoji</label><input type="text" id="editEmoji" maxlength="4"></div>
+    <div class="form-group"><label>Price (₹)</label><input type="number" id="editPrice" min="0" step="0.5"></div>
+    <div class="form-group"><label>Unit</label><input type="text" id="editUnit"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEditProduct()">Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA STORE (localStorage = permanent storage)
+// ═══════════════════════════════════════════════
+const ADMIN_PHONE = "9999999999"; // Admin phone — change this!
+const ADMIN_PASS = "admin123"; // Additional admin password
+
+function getData(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? def; }
+  catch { return def; }
+}
+function setData(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+// Initialize default products if empty
+function initProducts() {
+  const p = getData('rg_products', null);
+  if (!p) {
+    setData('rg_products', [
+      {id:'v1', cat:'vegetables', name:'Tomato', emoji:'🍅', price:30, unit:'per kg'},
+      {id:'v2', cat:'vegetables', name:'Onion', emoji:'🧅', price:25, unit:'per kg'},
+      {id:'v3', cat:'vegetables', name:'Potato', emoji:'🥔', price:20, unit:'per kg'},
+      {id:'v4', cat:'vegetables', name:'Spinach', emoji:'🥬', price:15, unit:'per bunch'},
+      {id:'v5', cat:'vegetables', name:'Carrot', emoji:'🥕', price:40, unit:'per kg'},
+      {id:'v6', cat:'vegetables', name:'Brinjal', emoji:'🍆', price:35, unit:'per kg'},
+      {id:'v7', cat:'vegetables', name:'Capsicum', emoji:'🫑', price:60, unit:'per kg'},
+      {id:'v8', cat:'vegetables', name:'Coriander', emoji:'🌿', price:10, unit:'per bunch'},
+      {id:'d1', cat:'drinks', name:'Mango Juice', emoji:'🥭', price:45, unit:'per 1L pack'},
+      {id:'d2', cat:'drinks', name:'Coconut Water', emoji:'🥥', price:30, unit:'per bottle'},
+      {id:'d3', cat:'drinks', name:'Buttermilk', emoji:'🥛', price:20, unit:'per 500ml'},
+      {id:'d4', cat:'drinks', name:'Lemon Soda', emoji:'🍋', price:25, unit:'per bottle'},
+      {id:'d5', cat:'drinks', name:'Orange Juice', emoji:'🍊', price:50, unit:'per 1L pack'},
+      {id:'f1', cat:'flours', name:'Wheat Flour (Atta)', emoji:'🌾', price:40, unit:'per kg'},
+      {id:'f2', cat:'flours', name:'Rice Flour', emoji:'🍚', price:35, unit:'per kg'},
+      {id:'f3', cat:'flours', name:'Besan (Gram Flour)', emoji:'🟡', price:75, unit:'per kg'},
+      {id:'f4', cat:'flours', name:'Maida', emoji:'⚪', price:30, unit:'per kg'},
+      {id:'f5', cat:'flours', name:'Rava (Semolina)', emoji:'🌟', price:45, unit:'per kg'},
+      {id:'s1', cat:'stationary', name:'A4 Notebook', emoji:'📓', price:60, unit:'per piece'},
+      {id:'s2', cat:'stationary', name:'Ball Pen (Pack)', emoji:'🖊', price:30, unit:'per pack of 5'},
+      {id:'s3', cat:'stationary', name:'Sticky Notes', emoji:'📌', price:25, unit:'per pad'},
+      {id:'s4', cat:'stationary', name:'Stapler', emoji:'📎', price:85, unit:'per piece'},
+      {id:'s5', cat:'stationary', name:'Marker Set', emoji:'🖍', price:120, unit:'per set of 12'},
+    ]);
+  }
+}
+
+// STATE
+let currentUser = getData('rg_session', null);
+let cart = {};
+let adminFilter = 'all';
+let storeFilter = 'all';
+let editingProductId = null;
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('loginError').style.display = 'none';
+}
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+}
+function handleLogin() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  if (!/^\d{10}$/.test(phone)) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = 'Enter a valid 10-digit number.';
+    return;
+  }
+  // Admin check
+  if (phone === ADMIN_PHONE) {
+    const pass = prompt('Enter Admin Password:');
+    if (pass !== ADMIN_PASS) { alert('Wrong password!'); return; }
+    currentUser = { phone, name: 'Raghavendra (Admin)', door: '', address: 'Admin', isAdmin: true };
+    setData('rg_session', currentUser);
+    afterLogin();
+    return;
+  }
+  const users = getData('rg_users', {});
+  if (!users[phone]) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = 'Phone not registered. Please sign up.';
+    return;
+  }
+  currentUser = users[phone];
+  setData('rg_session', currentUser);
+  afterLogin();
+}
+function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const door = document.getElementById('regDoor').value.trim();
+  const address = document.getElementById('regAddress').value.trim();
+  const errEl = document.getElementById('regError');
+  if (!name || !/^\d{10}$/.test(phone) || !door || !address) {
+    errEl.textContent = 'Please fill all fields with a valid 10-digit number.';
+    errEl.style.display = 'block'; return;
+  }
+  const users = getData('rg_users', {});
+  if (users[phone]) {
+    errEl.textContent = 'This phone number is already registered.';
+    errEl.style.display = 'block'; return;
+  }
+  const user = { phone, name, door, address, isAdmin: false };
+  users[phone] = user;
+  setData('rg_users', users);
+  currentUser = user;
+  setData('rg_session', currentUser);
+  afterLogin();
+}
+function afterLogin() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('mainNav').style.display = 'flex';
+  if (currentUser.isAdmin) {
+    document.getElementById('adminNavBtn').style.display = 'inline-flex';
+    document.getElementById('storeNavBtn').style.display = 'inline-flex';
+    showAdmin();
+  } else {
+    document.getElementById('ordersNavBtn').style.display = 'inline-flex';
+    document.getElementById('cartNavBtn').style.display = 'inline-flex';
+    showStore();
+  }
+}
+function handleLogout() {
+  currentUser = null; cart = {};
+  setData('rg_session', null);
+  document.getElementById('mainNav').style.display = 'none';
+  document.getElementById('ordersNavBtn').style.display = 'none';
+  document.getElementById('adminNavBtn').style.display = 'none';
+  document.getElementById('storeNavBtn').style.display = 'none';
+  document.getElementById('cartNavBtn').style.display = 'none';
+  ['storeScreen','ordersScreen','adminScreen'].forEach(s => document.getElementById(s).classList.remove('active'));
+  document.getElementById('loginScreen').classList.add('active');
+  showLogin();
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN NAV
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  ['loginScreen','storeScreen','ordersScreen','adminScreen'].forEach(s => {
+    document.getElementById(s).classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+function showStore() {
+  showScreen('storeScreen');
+  document.getElementById('welcomeName').textContent = currentUser.name;
+  document.getElementById('welcomeAddress').textContent = currentUser.door + ', ' + currentUser.address;
+  renderProducts('all');
+  filterCategory('all', null);
+}
+function showOrders() {
+  showScreen('ordersScreen');
+  renderCustomerOrders();
+}
+function showAdmin() {
+  showScreen('adminScreen');
+  renderAdminStats();
+  renderAdminProducts('all');
+  renderAdminOrders();
+  checkNewOrders();
+}
+
+// ═══════════════════════════════════════════════
+// PRODUCTS
+// ═══════════════════════════════════════════════
+const catInfo = {
+  vegetables: { label: '🥬 Vegetables', tag: 'tag-veg' },
+  drinks: { label: '🧃 Drinks', tag: 'tag-drink' },
+  flours: { label: '🌾 Flours', tag: 'tag-flour' },
+  stationary: { label: '✏️ Stationary', tag: 'tag-stat' },
+};
+
+function renderProducts(cat) {
+  const prods = getData('rg_products', []);
+  const container = document.getElementById('productsContainer');
+  container.innerHTML = '';
+  const cats = cat === 'all' ? ['vegetables','drinks','flours','stationary'] : [cat];
+  cats.forEach(c => {
+    const items = prods.filter(p => p.cat === c);
+    if (!items.length) return;
+    const sec = document.createElement('div');
+    sec.innerHTML = `<h3 class="category-title">${catInfo[c].label}</h3>`;
+    const grid = document.createElement('div');
+    grid.className = 'products-grid';
+    items.forEach(p => {
+      const qty = cart[p.id]?.qty || 0;
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.id = 'pcard-' + p.id;
+      card.innerHTML = `
+        <span class="product-emoji">${p.emoji}</span>
+        <div class="product-name">${p.name}</div>
+        <div class="product-unit">${p.unit}</div>
+        <div class="product-price">₹${p.price.toFixed(2)}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <span class="qty-display" id="qty-${p.id}">${qty}</span>
+          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+        </div>
+        <button class="add-cart-btn${qty>0?' added':''}" id="abtn-${p.id}" onclick="addToCart('${p.id}')">
+          ${qty>0 ? '✓ Added to Bag' : '+ Add to Bag'}
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+}
+
+function filterCategory(cat, el) {
+  storeFilter = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderProducts(cat);
+}
+
+function changeQty(id, delta) {
+  const prods = getData('rg_products', []);
+  const p = prods.find(x => x.id === id);
+  if (!p) return;
+  if (!cart[id]) cart[id] = { qty: 0, product: p };
+  cart[id].qty = Math.max(0, cart[id].qty + delta);
+  if (cart[id].qty === 0) delete cart[id];
+  updateQtyDisplay(id);
+  updateCartCount();
+}
+
+function addToCart(id) {
+  const prods = getData('rg_products', []);
+  const p = prods.find(x => x.id === id);
+  if (!p) return;
+  if (!cart[id]) { cart[id] = { qty: 1, product: p }; }
+  updateQtyDisplay(id);
+  updateCartCount();
+  const btn = document.getElementById('abtn-' + id);
+  if (btn) { btn.textContent = '✓ Added to Bag'; btn.classList.add('added'); }
+}
+
+function updateQtyDisplay(id) {
+  const el = document.getElementById('qty-' + id);
+  if (el) el.textContent = cart[id]?.qty || 0;
+  const btn = document.getElementById('abtn-' + id);
+  if (btn) {
+    const qty = cart[id]?.qty || 0;
+    btn.textContent = qty > 0 ? '✓ Added to Bag' : '+ Add to Bag';
+    btn.classList.toggle('added', qty > 0);
+  }
+}
+
+function updateCartCount() {
+  const total = Object.values(cart).reduce((s,c) => s + c.qty, 0);
+  const el = document.getElementById('cartCount');
+  el.textContent = total;
+  el.style.display = total > 0 ? 'flex' : 'none';
+}
+
+// ═══════════════════════════════════════════════
+// CART
+// ═══════════════════════════════════════════════
+function openCart() {
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartPanel').classList.add('open');
+  renderCart();
+}
+function closeCart() {
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartPanel').classList.remove('open');
+}
+
+function renderCart() {
+  const items = Object.entries(cart);
+  const itemsEl = document.getElementById('cartItems');
+  const footerEl = document.getElementById('cartFooter');
+  if (!items.length) {
+    itemsEl.innerHTML = `<div class="cart-empty"><div class="big-emoji">🛒</div><p>Your bag is empty</p><p style="font-size:0.82rem;margin-top:6px;">Add items from the store!</p></div>`;
+    footerEl.innerHTML = '';
+    return;
+  }
+  let total = 0;
+  itemsEl.innerHTML = items.map(([id, c]) => {
+    const sub = c.product.price * c.qty;
+    total += sub;
+    return `<div class="cart-item">
+      <span class="cart-item-emoji">${c.product.emoji}</span>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${c.product.name}</div>
+        <div class="cart-item-price">₹${c.product.price} × ${c.qty} = ₹${sub.toFixed(2)}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+          <button class="qty-btn" style="width:26px;height:26px;" onclick="changeQty('${id}',-1);renderCart()">−</button>
+          <span style="font-size:0.9rem;font-weight:600;">${c.qty}</span>
+          <button class="qty-btn" style="width:26px;height:26px;" onclick="changeQty('${id}',1);renderCart()">+</button>
+        </div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart('${id}')">🗑</button>
+    </div>`;
+  }).join('');
+  footerEl.innerHTML = `
+    <div class="cod-notice">💵 Cash on Delivery Only</div>
+    <div class="cart-total"><span>Total Amount</span><span>₹${total.toFixed(2)}</span></div>
+    <button class="btn btn-gold" style="width:100%;padding:13px;font-size:1rem;" onclick="placeOrder(${total.toFixed(2)})">Place Order 🎉</button>
+  `;
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  updateCartCount();
+  renderCart();
+  updateQtyDisplay(id);
+}
+
+function placeOrder(total) {
+  if (!Object.keys(cart).length) { alert('Your bag is empty!'); return; }
+  const orders = getData('rg_orders', []);
+  const order = {
+    id: 'ORD-' + Date.now(),
+    customerPhone: currentUser.phone,
+    customerName: currentUser.name,
+    customerDoor: currentUser.door,
+    customerAddress: currentUser.address,
+    items: Object.values(cart).map(c => ({
+      name: c.product.name, emoji: c.product.emoji,
+      price: c.product.price, qty: c.qty,
+      subtotal: c.product.price * c.qty
+    })),
+    total: total,
+    status: 'Pending',
+    timestamp: new Date().toISOString(),
+    seen: false
+  };
+  orders.unshift(order);
+  setData('rg_orders', orders);
+  cart = {};
+  updateCartCount();
+  closeCart();
+  renderProducts(storeFilter);
+  alert(`✅ Order placed successfully!\n\nOrder ID: ${order.id}\nTotal: ₹${total}\n\nThank you! We will deliver soon. 🚚`);
+}
+
+// ═══════════════════════════════════════════════
+// CUSTOMER ORDERS VIEW
+// ═══════════════════════════════════════════════
+function renderCustomerOrders() {
+  const orders = getData('rg_orders', []).filter(o => o.customerPhone === currentUser.phone);
+  const el = document.getElementById('customerOrdersList');
+  if (!orders.length) {
+    el.innerHTML = `<div class="no-orders">📦 No orders yet. Start shopping!</div>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => orderCardHTML(o, false)).join('');
+}
+
+function orderCardHTML(o, isAdmin) {
+  const date = new Date(o.timestamp).toLocaleString('en-IN', {dateStyle:'medium',timeStyle:'short'});
+  return `<div class="order-card">
+    <div class="order-card-header">
+      <div>
+        <div class="order-id">${o.id}</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">${date}</div>
+        ${isAdmin ? `<div style="font-size:0.88rem;margin-top:4px;"><strong>${o.customerName}</strong> · ${o.customerPhone}</div>` : ''}
+      </div>
+      <div style="text-align:right;">
+        <span class="order-badge">${o.status}</span>
+        <div style="font-size:1rem;font-weight:700;color:var(--green);margin-top:4px;">₹${o.total}</div>
+      </div>
+    </div>
+    <div class="order-items-list">
+      ${o.items.map(i => `<div class="order-item-row"><span>${i.emoji} ${i.name} × ${i.qty}</span><span>₹${i.subtotal.toFixed(2)}</span></div>`).join('')}
+      <div class="order-total-row"><span>Total</span><span>₹${o.total}</span></div>
+    </div>
+    ${isAdmin ? `<div class="order-customer-info">📍 ${o.customerDoor}, ${o.customerAddress}</div>` : ''}
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:8px;">💵 Cash on Delivery</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// ADMIN PRODUCTS
+// ═══════════════════════════════════════════════
+function renderAdminProducts(cat) {
+  const prods = getData('rg_products', []);
+  const filtered = cat === 'all' ? prods : prods.filter(p => p.cat === cat);
+  const el = document.getElementById('adminProductList');
+  el.innerHTML = filtered.map(p => `
+    <li>
+      <span class="pla-emoji">${p.emoji}</span>
+      <div style="flex:1;">
+        <div class="pla-name">${p.name}</div>
+        <div class="pla-unit">${p.unit}</div>
+      </div>
+      <div class="pla-price">₹${p.price.toFixed(2)}</div>
+      <div class="pla-actions">
+        <button class="icon-btn" onclick="openEditModal('${p.id}')" title="Edit">✏️</button>
+        <button class="icon-btn del" onclick="deleteProduct('${p.id}')" title="Delete">🗑</button>
+      </div>
+    </li>
+  `).join('') || '<li style="color:var(--muted);font-size:0.88rem;padding:1rem 0;">No products in this category.</li>';
+}
+
+function filterAdminProducts(cat, el) {
+  adminFilter = cat;
+  document.querySelectorAll('#adminCatFilter .tab-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderAdminProducts(cat);
+}
+
+function saveProduct() {
+  const name = document.getElementById('adminProductName').value.trim();
+  const emoji = document.getElementById('adminProductEmoji').value.trim() || '📦';
+  const price = parseFloat(document.getElementById('adminProductPrice').value);
+  const unit = document.getElementById('adminProductUnit').value.trim();
+  const cat = document.getElementById('adminCategory').value;
+  if (!name || isNaN(price) || price < 0 || !unit) {
+    alert('Please fill all product fields.'); return;
+  }
+  const prods = getData('rg_products', []);
+  const editId = document.getElementById('adminEditId').value;
+  if (editId) {
+    const idx = prods.findIndex(p => p.id === editId);
+    if (idx >= 0) { prods[idx] = { ...prods[idx], name, emoji, price, unit, cat }; }
+  } else {
+    prods.push({ id: 'p' + Date.now(), cat, name, emoji, price, unit });
+  }
+  setData('rg_products', prods);
+  clearAdminForm();
+  renderAdminProducts(adminFilter);
+  renderAdminStats();
+}
+
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  const prods = getData('rg_products', []).filter(p => p.id !== id);
+  setData('rg_products', prods);
+  renderAdminProducts(adminFilter);
+  renderAdminStats();
+}
+
+function clearAdminForm() {
+  ['adminProductName','adminProductEmoji','adminProductPrice','adminProductUnit','adminEditId'].forEach(id => document.getElementById(id).value = '');
+}
+
+function openEditModal(id) {
+  const p = getData('rg_products', []).find(x => x.id === id);
+  if (!p) return;
+  editingProductId = id;
+  document.getElementById('editName').value = p.name;
+  document.getElementById('editEmoji').value = p.emoji;
+  document.getElementById('editPrice').value = p.price;
+  document.getElementById('editUnit').value = p.unit;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+function saveEditProduct() {
+  const prods = getData('rg_products', []);
+  const idx = prods.findIndex(p => p.id === editingProductId);
+  if (idx < 0) return;
+  prods[idx].name = document.getElementById('editName').value.trim();
+  prods[idx].emoji = document.getElementById('editEmoji').value.trim() || prods[idx].emoji;
+  prods[idx].price = parseFloat(document.getElementById('editPrice').value) || prods[idx].price;
+  prods[idx].unit = document.getElementById('editUnit').value.trim();
+  setData('rg_products', prods);
+  closeEditModal();
+  renderAdminProducts(adminFilter);
+}
+
+// ═══════════════════════════════════════════════
+// ADMIN ORDERS & NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function renderAdminOrders() {
+  const orders = getData('rg_orders', []);
+  const el = document.getElementById('adminOrdersList');
+  if (!orders.length) {
+    el.innerHTML = `<div class="no-orders">No orders yet.</div>`; return;
+  }
+  el.innerHTML = orders.map(o => orderCardHTML(o, true)).join('');
+}
+
+function renderAdminStats() {
+  const prods = getData('rg_products', []);
+  const orders = getData('rg_orders', []);
+  const users = getData('rg_users', {});
+  const revenue = orders.reduce((s,o) => s + o.total, 0);
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-box"><div class="num">${prods.length}</div><div class="lbl">Products</div></div>
+    <div class="stat-box"><div class="num">${orders.length}</div><div class="lbl">Orders</div></div>
+    <div class="stat-box"><div class="num">₹${revenue.toFixed(0)}</div><div class="lbl">Revenue</div></div>
+    <div class="stat-box"><div class="num">${Object.keys(users).length}</div><div class="lbl">Customers</div></div>
+    <div class="stat-box"><div class="num">${orders.filter(o=>!o.seen).length}</div><div class="lbl">New Orders</div></div>
+    <div class="stat-box"><div class="num">${orders.filter(o=>o.status==='Pending').length}</div><div class="lbl">Pending</div></div>
+  `;
+}
+
+function checkNewOrders() {
+  const orders = getData('rg_orders', []);
+  const newOrders = orders.filter(o => !o.seen);
+  const bell = document.getElementById('notifBell');
+  if (newOrders.length > 0) {
+    bell.classList.add('show');
+    bell.innerHTML = `🔔 <strong>${newOrders.length} new order(s)!</strong> ` +
+      newOrders.slice(0,2).map(o => `<br>• <b>${o.customerName}</b> (${o.customerPhone}) — ₹${o.total} — ${o.items.map(i=>i.name).join(', ')}`).join('');
+    // Mark as seen
+    orders.forEach(o => o.seen = true);
+    setData('rg_orders', orders);
+  } else {
+    bell.classList.remove('show');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+initProducts();
+if (currentUser) { afterLogin(); }
+</script>
+</body>
+</html>
